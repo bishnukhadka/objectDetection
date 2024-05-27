@@ -32,7 +32,7 @@ def extract_windows(image_path, output_folder, window_size=256):
     print(height - height%window_size)
 
 
-def get_jpg_files(folder_path):
+def get_jpg_files_path(folder_path):
     jpg_files_path = []
     # Check if the folder path exists
     if os.path.exists(folder_path):
@@ -47,6 +47,22 @@ def get_jpg_files(folder_path):
         print("Folder path does not exist.")
     return jpg_files_path
 
+
+
+def get_jpg_filenames(folder_path):
+    jpg_files_names = []
+    # Check if the folder path exists
+    if os.path.exists(folder_path):
+        # Iterate through all files in the folder
+        for filename in os.listdir(folder_path):
+            # Check if the file has a .jpg extension
+            if filename.lower().endswith('.jpg'):
+                # print(filename.lower())
+                # Add the file to the list of jpg_files
+                jpg_files_names.append(filename)
+    else:
+        print("Folder path does not exist.")
+    return jpg_files_names
 
 def read_yaml_file(file_path):
     try:
@@ -81,7 +97,7 @@ if __name__ == "__main__":
         folder_path = yaml_data['folder_path']
         copped_image_output_folder=yaml_data['copped_image_output_folder']
 
-        jpg_files_paths = get_jpg_files(folder_path)
+        jpg_files_paths = get_jpg_files_path(folder_path)
 
         for jpg_files_path in jpg_files_paths:
             print(file_path)
