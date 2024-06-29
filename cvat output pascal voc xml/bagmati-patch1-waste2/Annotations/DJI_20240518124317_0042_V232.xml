@@ -1,0 +1,33 @@
+<annotation>
+  <folder>DJI</folder>
+  <filename>DJI_20240518124317_0042_V232.jpg</filename>
+  <source>
+    <database>Unknown</database>
+    <annotation>Unknown</annotation>
+    <image>Unknown</image>
+  </source>
+  <size>
+    <width>256</width>
+    <height>256</height>
+    <depth></depth>
+  </size>
+  <segmented>0</segmented>
+  <object>
+    <name>waste</name>
+    <truncated>0</truncated>
+    <occluded>0</occluded>
+    <difficult>0</difficult>
+    <bndbox>
+      <xmin>69.04</xmin>
+      <ymin>153.28</ymin>
+      <xmax>73.63</xmax>
+      <ymax>177.17</ymax>
+    </bndbox>
+    <attributes>
+      <attribute>
+        <name>rotation</name>
+        <value>323.2</value>
+      </attribute>
+    </attributes>
+  </object>
+</annotation>
