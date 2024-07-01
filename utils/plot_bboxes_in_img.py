@@ -5,7 +5,7 @@ import math
 from matplotlib.patches import Polygon
 from miscellaneous import rotate_point
 
-def plot_yolo_obb(yolo_obb_file, image_file):
+def plot_oriented_bbox(obb_file, image_file):
     """
     Plots oriented bounding boxes on an image using coordinates from a YOLO OBB format file.
 
@@ -43,10 +43,9 @@ def plot_yolo_obb(yolo_obb_file, image_file):
         if image is None:
             print(f"Error: Unable to load image from {image_file}")
             return
-        height, width, _ = image.shape
         
         # Read the YOLO OBB file
-        with open(yolo_obb_file, 'r') as file:
+        with open(obb_file, 'r') as file:
             lines = file.readlines()
         
         # Plot the image
@@ -58,21 +57,21 @@ def plot_yolo_obb(yolo_obb_file, image_file):
         for line in lines:
             num_of_bboxes = num_of_bboxes + 1
             data = line.strip().split(',')
-            if len(data) != 9:
+            print(data)
+            if len(data) != 10:
                 print(f'Invalid format.')
                 return
             try:
                 # Extract class and coordinates
-                cls, x1, y1, x2, y2, x3, y3, x4, y4 = map(float, data)
+                # Extract coordinates and convert to float
+                x1, y1, x2, y2, x3, y3, x4, y4 = list(map(float, data[:8]))
+
+                # Extract class label and difficulty
+                cls = data[8]
+                difficulty = int(data[9])  # Assuming difficulty should be an integer   
             except ValueError as e:
                 print(f"Error parsing line: {line}, {e}")  # Debug: Print parsing error
                 return
-            
-            # Denormalize coordinates
-            x1, y1 = x1 * width, y1 * height
-            x2, y2 = x2 * width, y2 * height
-            x3, y3 = x3 * width, y3 * height
-            x4, y4 = x4 * width, y4 * height
             
             # Create a polygon from the coordinates
             rect = patches.Polygon(((x1, y1), (x2, y2), (x3, y3), (x4, y4)), closed=True, edgecolor='r', facecolor='none')
@@ -158,10 +157,10 @@ def plot_rotated_rect_label_stuido_json(bounding_boxes, image_path):
         angle = bbox['rotation']
 
         # Calculate rotated points
-        pt1 = (x0, y0)
-        pt2 = (x0 + width * math.cos(math.radians(angle)), y0 + width * math.sin(math.radians(angle)))
-        pt3 = (x0 + width * math.cos(math.radians(angle)) - height * math.sin(math.radians(angle)), y0 + width * math.sin(math.radians(angle)) + height * math.cos(math.radians(angle)))
-        pt4 = (x0 - height * math.sin(math.radians(angle)), y0 + height * math.cos(math.radians(angle)))
+        pt1 = (round(x0, 3), round(y0, 3))
+        pt2 = (round(x0 + width * math.cos(math.radians(angle)), 3), round(y0 + width * math.sin(math.radians(angle))))
+        pt3 = (round(x0 + width * math.cos(math.radians(angle)) - height * math.sin(math.radians(angle)), 3), round(y0 + width * math.sin(math.radians(angle)) + height * math.cos(math.radians(angle)), 3))
+        pt4 = (round(x0 - height * math.sin(math.radians(angle)), 3), round(y0 + height * math.cos(math.radians(angle)), 3))
 
         # Create a rotated rectangle patch
         rect = patches.Polygon([pt1,pt2,pt3,pt4],
@@ -241,10 +240,6 @@ def plot_rotated_rectangle_pascal_voc_format(bounding_boxes, image_path):
     
     # Display the image
     ax.imshow(img)
-    
-    # Scale factors
-    x_scale = original_width / 100
-    y_scale = original_height / 100
 
     num_of_bboxes = 0
     for bbox in bounding_boxes:
@@ -291,10 +286,10 @@ def plot_rotated_rectangle_pascal_voc_format(bounding_boxes, image_path):
     plt.show()
 
 def main():
-    yol0_obb_file = "C:\\Users\\HP\\Documents\\py\\Object Detection\\YOLO v5\\files_required for annotation\\bagmati-patch1-waste2\\DJI_20240518124257_0028_V282.txt"
-    image_file = "C:\\Users\\HP\\Documents\\py\\Object Detection\\dataset\\bagmati\\bagmati-patch-1-cropped\\Bagmati patch 1-waste2\\bagmati patch 1 waste 2 batch_1_to_5\\DJI_20240518124257_0028_V282.jpg"
+    yol0_obb_file = "C:\\Users\\HP\\Documents\\py\\Object Detection\\cvat output pascal voc xml\\bagmati-patch1-waste2\\labels\\DJI_20240518124257_0028_V282.txt"
+    image_file = "C:\\Users\\HP\\Documents\\py\\Object Detection\\dataset\\bagmati\\Bagmati-patch-1-cropped\\Bagmati patch 1-waste2\\bagmati patch 1 waste 2 batch_1_to_5\\DJI_20240518124257_0028_V282.jpg"
 
-    plot_yolo_obb(yolo_obb_file=yol0_obb_file, image_file=image_file)
+    plot_oriented_bbox(obb_file=yol0_obb_file, image_file=image_file)
 
 
 if __name__ == "__main__":

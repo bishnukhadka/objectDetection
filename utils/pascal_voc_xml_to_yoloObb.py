@@ -6,7 +6,7 @@ from miscellaneous import path_valid, save_to_txt_file
 import xml.etree.ElementTree as ET
 from miscellaneous import rotate_point, get_filenames_of_extention
 
-def convert_pascal_voc_xml_to_yoloOBB(source_folder, destination_folder):
+def convert_pascal_voc_xml_to_OBB(source_folder, destination_folder):
     '''
     Convert the Pascal Voc XML format of the source folder to the YOLO_OBB format
     and save it to the destination folder. 
@@ -35,7 +35,7 @@ def convert_pascal_voc_xml_to_yoloOBB(source_folder, destination_folder):
         print(f'{i}: {filename}')
         # path of the .xml file
         xml_path_obj = source_path_obj/filename
-        success = convert_single_pascal_voc_xml_to_yoloObb(xml_path_obj, destination_folder_path_obj, image_size=(256,256))
+        success = convert_single_pascal_voc_xml_to_yoloObb(xml_path_obj, destination_folder_path_obj)
         if not success: 
             # print('failed')
             failed_lables.append(xml_path_obj.name)
@@ -43,7 +43,7 @@ def convert_pascal_voc_xml_to_yoloOBB(source_folder, destination_folder):
     return True, failed_lables
 
 
-def convert_single_pascal_voc_xml_to_yoloObb(xml_path, destination_path, image_size=(256,256)):
+def convert_single_pascal_voc_xml_to_yoloObb(xml_path, destination_path):
     '''
     function that converts the dataframe to yolo_obb format
 
@@ -99,12 +99,11 @@ def convert_single_pascal_voc_xml_to_yoloObb(xml_path, destination_path, image_s
     # print(file_name)
 
     b_boxes = df['b_boxes'][0]
-    # Get original image dimensions
-    img_height, img_width = image_size
 
     lines_to_write = []
     new_file_path = destination_path_obj.joinpath(file_name)
     num_of_bboxes =0
+    round_variable = 3
     for bbox in b_boxes:
         xmin = bbox['xmin']
         ymin = bbox['ymin']
@@ -135,17 +134,19 @@ def convert_single_pascal_voc_xml_to_yoloObb(xml_path, destination_path, image_s
         y4 += cy
 
         # Normalize the coordinates
-        x1, x2, x3, x4 = round(x1/img_width,5), round(x2/img_width,5), round(x3/img_width,5),round(x4/img_width,5)
-        y1, y2, y3, y4 = round(y1/img_height,5), round(y2/img_height,5) , round(y3/img_height,5), round(y4/img_height,5)
+        x1, x2, x3, x4 = round(x1,round_variable), round(x2,round_variable), round(x3,round_variable),round(x4,round_variable)
+        y1, y2, y3, y4 = round(y1,round_variable), round(y2,round_variable) , round(y3,round_variable), round(y4,round_variable)
 
         # save the files in the yolo_obb format (x1,y1,x2,y2,x3,y3,x4,y4)
         coordinates = (x1,y1,x2,y2,x3,y3,x4,y4)
 
-        # a function to map different class label to their respective int values
-        class_label_int = 0
+        # TODO: convert the class-labels which is in string class-lables
+        class_label = 'waste'
 
+        # TODO: way to get the difficuulty of finding the class-label
+        difficulty = 0 # default 
 
-        line = str(class_label_int) + ',' + ','.join(map(str, coordinates))
+        line = ','.join(map(str, coordinates)) + ',' + str(class_label) + ',' + str(difficulty)
         # print(line)
     
         lines_to_write.append(line)
@@ -217,9 +218,9 @@ def extract_b_boxes_and_rotation(file_path):
     return df
 
 def main():
-    xml_path = "C:\\Users\\HP\\Documents\\py\\Object Detection\\YOLO v5\\files_required for annotation\\bagmati-patch1-waste2\\Annotations"
-    destination_path = "C:\\Users\\HP\\Documents\\py\\Object Detection\\dataset\\bagmati\\bagmati-patch-1-cropped\\Bagmati patch 1-waste2\\bagmati patch 1 waste 2 batch_1_to_5\\lables"
-    _ , failed_lables = convert_pascal_voc_xml_to_yoloOBB(xml_path, destination_path)
+    xml_path = "C:\\Users\\HP\\Documents\\py\\Object Detection\\cvat output pascal voc xml\\bagmati-patch1-waste2\\Annotations"
+    destination_path = "C:\\Users\\HP\\Documents\\py\\Object Detection\\cvat output pascal voc xml\\bagmati-patch1-waste2\\labels"
+    _ , failed_lables = convert_pascal_voc_xml_to_OBB(xml_path, destination_path)
 
     print(f'Failed lables: {len(failed_lables)}')
 

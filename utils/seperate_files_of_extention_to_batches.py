@@ -4,9 +4,9 @@ import os
 import shutil
 import sys
 
-from crop import get_filenames_of_extention
+from miscellaneous import get_filenames_of_extention
 
-def move_files(extention, source_folder, dest_folder_base, batch_size=100):
+def move_files_to_batches(extention, source_folder, dest_folder_base, batch_size=100):
     # Ensure the destination base folder exists
     if not os.path.exists(dest_folder_base):
         os.makedirs(dest_folder_base)
@@ -50,8 +50,8 @@ def move_files(extention, source_folder, dest_folder_base, batch_size=100):
         if not error_occured:
             print(f'Moved {len(batch_files)} files to {batch_folder}')
 
-def move_jpgs(source_folder, dest_folder_base, batch_size=100):
-    move_files('.jpg', source_folder=source_folder, dest_folder_base=dest_folder_base, batch_size=batch_size)
+def move_jpgs_to_batches(source_folder, dest_folder_base, batch_size=100):
+    move_files_to_batches('.jpg', source_folder=source_folder, dest_folder_base=dest_folder_base, batch_size=batch_size)
 
 def get_script_directory():
     # Get the absolute path of the script
@@ -70,7 +70,7 @@ def main():
         sys.exit(1)
 
     # Call the function
-    move_files(extention=sys.argv[1], source_folder=sys.argv[2], dest_folder_base=sys.argv[3], batch_size=int(sys.argv[4]))
+    move_files_to_batches(extention=sys.argv[1], source_folder=sys.argv[2], dest_folder_base=sys.argv[3], batch_size=int(sys.argv[4]))
 
 if __name__ == "__main__":
     main()

@@ -44,7 +44,8 @@ def get_filenames_of_extention(folder_path, extention='.jpg'):
                 file_names.append(filename)
     else:
         print("Folder path does not exist.")
-    return file_names
+        return False, file_names
+    return True, file_names
 
 
 def get_all_filenames(folder_path): 

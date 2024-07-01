@@ -6,7 +6,7 @@ import math
 from miscellaneous import save_to_txt_file, path_valid
 
 
-def convert_json_to_yolo_obb_format(json_path, destination_path, image_size=(256,256)):
+def convert_json_to_obb_format(json_path, destination_path, image_size=(256,256)):
     '''
     function that converts the dataframe to yolo_obb format
 
@@ -51,7 +51,7 @@ def convert_json_to_yolo_obb_format(json_path, destination_path, image_size=(256
         split_file_name = file_name.split('.')
         file_name = split_file_name[0]
 
-        # print(file_name)
+        print(file_name)
 
         b_boxes = row['b_boxes']
         # Get original image dimensions
@@ -69,30 +69,35 @@ def convert_json_to_yolo_obb_format(json_path, destination_path, image_size=(256
             height = bbox['height'] * y_scale
             angle = bbox['rotation']
 
-            # Calculate rotated points
-            pt1 = (x0, y0)
-            pt2 = (x0 + width * math.cos(math.radians(angle)), y0 + width * math.sin(math.radians(angle)))
-            pt3 = (x0 + width * math.cos(math.radians(angle)) - height * math.sin(math.radians(angle)), y0 + width * math.sin(math.radians(angle)) + height * math.cos(math.radians(angle)))
-            pt4 = (x0 - height * math.sin(math.radians(angle)), y0 + height * math.cos(math.radians(angle)))
+            # Calculate rotated points: clockwise direction
+            '''
+            ptl is the initial point.
+            pt2 is obtained by moving horizontally from ptl considering the rotation.
+            pt3 is obtained by moving vertically from pt2 considering the rotation.
+            pt4 is obtained by moving vertically from ptl considering the rotation.
+            '''
+            pt1 = (round(x0, 3), round(y0, 3))
+            pt2 = (round(x0 + width * math.cos(math.radians(angle)), 3), round(y0 + width * math.sin(math.radians(angle))))
+            pt3 = (round(x0 + width * math.cos(math.radians(angle)) - height * math.sin(math.radians(angle)), 3), round(y0 + width * math.sin(math.radians(angle)) + height * math.cos(math.radians(angle)), 3))
+            pt4 = (round(x0 - height * math.sin(math.radians(angle)), 3), round(y0 + height * math.cos(math.radians(angle)), 3))
 
-            # TODO: convert the class-labels which is in b_boxes['rectangables'] = ['class1', 'class2', 'class3']
-            class_label = 0
-            # normalize the points. 
+            # TODO: convert the class-labels which is in b_boxes['rectanglelabels'] = ['class1', 'class2', 'class3']
+            class_label = bbox['rectanglelabels'][0]
+
+            # TODO: way to get the difficuulty of finding the class-label
+            difficulty = 0 # default 
+            
             x1,y1 = pt1
             x2,y2 = pt2
             x3,y3 = pt3
             x4,y4 = pt4
 
-            x1, y1 = round(x1 / img_width, 3), round(y1 / img_height, 3)
-            x2, y2 = round(x2 / img_width, 3), round(y2 / img_height, 3)
-            x3, y3 = round(x3 / img_width, 3), round(y3 / img_height, 3)
-            x4, y4 = round(x4 / img_width, 3), round(y4 / img_height, 3)
-
             # save the files in the yolo_obb format (x1,y1,x2,y2,x3,y3,x4,y4)
             coordinates = (x1,y1,x2,y2,x3,y3,x4,y4)
-            print(coordinates)
+            # print(coordinates)
             new_file_path = destination_path_obj.joinpath(file_name)
-            line = str(class_label) + ',' + ','.join(map(str, coordinates))
+            # line = str(class_label) + ',' + ','.join(map(str, coordinates))
+            line = ','.join(map(str, coordinates)) + ',' + str(class_label) + ',' + str(difficulty)
             
             lines_to_write.append(line)
         save_to_txt_file(lines_to_write=lines_to_write, destination_path=new_file_path)
@@ -256,11 +261,11 @@ def convert_json_to_yolo_with_roataion(json_path, destination_path, image_size):
 def main():
     # TODO: use parser to make it take cmd args. 
     print("This is the main function.")
-    path = 'C:\\Users\\HP\\Documents\\py\\Object Detection\\YOLO v5\\files_required for annotation\\bagmati-patch1-waste1-645-files\\bagmati-patch1-waste1-645-files.json'
-    destination_path = 'C:\\Users\\HP\\Documents\\py\\Object Detection\\YOLO v5\\files_required for annotation\\bagmati-patch1-waste1-645-files\\labels'
+    path = 'label-studio json files\\bagmati-patch2_waste1\\bagmati-patch2_waste1.json'
+    destination_path = 'dataset\\labelTxt\\bagmati-patch2-waste1'
 
     # Your program logic goes here
-    convert_json_to_yolo_obb_format(json_path=path, destination_path=destination_path, image_size=(256,256))
+    convert_json_to_obb_format(json_path=path, destination_path=destination_path, image_size=(256,256))
 
 if __name__ == "__main__":
     main()
